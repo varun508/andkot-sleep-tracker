@@ -22,7 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import com.example.android.trackmysleepquality.R
+import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
 
 /**
@@ -32,6 +34,8 @@ import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerB
  */
 class SleepTrackerFragment : Fragment() {
 
+    private lateinit var viewModelFactory: SleepTrackerViewModelFactory
+    private lateinit var viewModel: SleepTrackerViewModel
     /**
      * Called when the Fragment is ready to display content to the screen.
      *
@@ -44,6 +48,14 @@ class SleepTrackerFragment : Fragment() {
         val binding: FragmentSleepTrackerBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_sleep_tracker, container, false)
 
+        val application = requireNotNull(this.activity).application
+        val databaseDao = SleepDatabase.getInstance(application).sleepDatabaseDao
+
+        viewModelFactory = SleepTrackerViewModelFactory(databaseDao, application)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(SleepTrackerViewModel::class.java)
+
+        binding.sleepTrackerViewModel = viewModel
+        binding.setLifecycleOwner(this)
         return binding.root
     }
 }
